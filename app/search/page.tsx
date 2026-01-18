@@ -1,50 +1,46 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { VerseCard } from '@/components/VerseCard';
 import { SearchFilters } from '@/components/SearchFilters';
 import { ConceptGraph } from '@/components/ConceptGraph';
 import { Skeleton } from '@/components/ui/skeleton';
-import { SearchResult } from '@/types';
-import { Search } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { SearchResult, Language, SourceType } from '@/types';
+import { Search, Grid3x3, List, ArrowUpDown } from 'lucide-react';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useRouter } from 'next/navigation';
 
-function useDebounce(value: string, delay: number) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-
-  return debouncedValue;
-}
+type SortOption = 'relevance' | 'source' | 'date';
+type ViewMode = 'list' | 'grid';
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
-  const [language, setLanguage] = useState<'english' | 'hindi'>('english');
-  const [source, setSource] = useState('all');
+  const [language, setLanguage] = useState<Language>('english');
+  const [source, setSource] = useState<string>('all');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('relevance');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const router = useRouter();
   
   const debouncedQuery = useDebounce(query, 500);
   
-  useEffect(() => {
-    if (debouncedQuery.length > 2) {
-      searchVerses();
-    } else {
-      setResults([]);
-    }
-  }, [debouncedQuery, source]);
-  
-  async function searchVerses() {
+  const searchVerses = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: debouncedQuery, source, limit: 20 })
+        body: JSON.stringify({ 
+          query: debouncedQuery, 
+          source, 
+          limit: 20,
+          weights: { semantic: 0.6, keyword: 0.3, concept: 0.1 }
+        })
       });
       const data = await res.json();
       setResults(data.results || []);
@@ -54,7 +50,49 @@ export default function SearchPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [debouncedQuery, source]);
+  
+  useEffect(() => {
+    if (debouncedQuery.length > 2) {
+      searchVerses();
+    } else {
+      setResults([]);
+    }
+  }, [debouncedQuery, source, searchVerses]);
+  
+  const sortedResults = useMemo(() => {
+    const sorted = [...results];
+    switch (sortBy) {
+      case 'source':
+        return sorted.sort((a, b) => a.source.localeCompare(b.source));
+      case 'date':
+        return sorted.sort((a, b) => {
+          const aDate = new Date(a.last_verified).getTime();
+          const bDate = new Date(b.last_verified).getTime();
+          return bDate - aDate;
+        });
+      case 'relevance':
+      default:
+        return sorted.sort((a, b) => b.relevance_score - a.relevance_score);
+    }
+  }, [results, sortBy]);
+  
+  const conceptFrequencies = useMemo(() => {
+    const freqMap = new Map<string, number>();
+    results.forEach(verse => {
+      verse.concepts.forEach(concept => {
+        freqMap.set(concept, (freqMap.get(concept) || 0) + 1);
+      });
+    });
+    return Array.from(freqMap.entries())
+      .map(([name, frequency]) => ({ name, frequency }))
+      .sort((a, b) => b.frequency - a.frequency)
+      .slice(0, 20);
+  }, [results]);
+  
+  const handleConceptClick = (concept: string) => {
+    setQuery(concept);
+  };
   
   return (
     <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
@@ -108,15 +146,65 @@ export default function SearchPage() {
       
       {!loading && results.length > 0 && (
         <div className="space-y-4 md:space-y-6">
-          <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h2 className="text-lg md:text-xl font-semibold">
               {results.length} {language === 'hindi' ? 'परिणाम' : 'Results Found'}
             </h2>
-            {results.map((verse) => (
+            
+            <div className="flex items-center gap-2">
+              <Select value={sortBy} onValueChange={(v: SortOption) => setSortBy(v)}>
+                <SelectTrigger className="w-40">
+                  <ArrowUpDown className="h-4 w-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">Relevance</SelectItem>
+                  <SelectItem value="source">Source</SelectItem>
+                  <SelectItem value="date">Date</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <div className="flex border rounded-md">
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="icon"
+                  className="h-9 w-9 rounded-r-none"
+                  onClick={() => setViewMode('list')}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                  size="icon"
+                  className="h-9 w-9 rounded-l-none"
+                  onClick={() => setViewMode('grid')}
+                >
+                  <Grid3x3 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          {conceptFrequencies.length > 0 && (
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold mb-3">
+                {language === 'hindi' ? 'अवधारणाएं' : 'Concepts'}
+              </h3>
+              <ConceptGraph 
+                concepts={conceptFrequencies}
+                onConceptClick={handleConceptClick}
+              />
+            </Card>
+          )}
+          
+          <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : 'space-y-4'}>
+            {sortedResults.map((verse) => (
               <VerseCard 
                 key={verse.text_id} 
                 verse={verse} 
                 language={language}
+                viewMode="detailed"
+                onConceptClick={handleConceptClick}
               />
             ))}
           </div>

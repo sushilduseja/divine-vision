@@ -1,120 +1,301 @@
 [
   {
-    "text_id": "SB_1.1.1",
+    "text_id": "SB.1.1.1",
     "source": "bhagavatam",
     "canto": 1,
     "chapter": 1,
     "verse_number": 1,
-    "sanskrit_devanagari": "ॐ नमो भगवते वासुदेवाय",
-    "sanskrit_iast": "oṁ namo bhagavate vāsudevāya",
-    "english_translation": "I offer my respectful obeisances unto Lord Vāsudeva, the Supreme Personality of Godhead",
-    "hindi_translation": "मैं भगवान वासुदेव, परम पुरुष भगवान को अपना सादर प्रणाम करता हूं",
-    "word_meanings": {
-      "om": "the primordial sound",
-      "namah": "obeisances",
-      "bhagavate": "unto the Personality of Godhead",
-      "vāsudevāya": "unto Vāsudeva"
+    "sanskrit": {
+      "devanagari": "ॐ नमो भगवते वासुदेवाय",
+      "iast": "oṁ namo bhagavate vāsudevāya",
+      "word_breakdown": [
+        {
+          "sanskrit": "ॐ",
+          "transliteration": "om",
+          "meaning": "the primordial sound"
+        },
+        {
+          "sanskrit": "नमः",
+          "transliteration": "namah",
+          "meaning": "obeisances"
+        },
+        {
+          "sanskrit": "भगवते",
+          "transliteration": "bhagavate",
+          "meaning": "unto the Personality of Godhead"
+        },
+        {
+          "sanskrit": "वासुदेवाय",
+          "transliteration": "vāsudevāya",
+          "meaning": "unto Vāsudeva"
+        }
+      ]
     },
-    "commentary_english": "This is the traditional invocation acknowledging the source of all knowledge and seeking blessings for the work.",
-    "commentary_hindi": "यह पारंपरिक आह्वान सभी ज्ञान के स्रोत को स्वीकार करता है और कार्य के लिए आशीर्वाद मांगता है।",
+    "translations": {
+      "english": {
+        "text": "I offer my respectful obeisances unto Lord Vāsudeva, the Supreme Personality of Godhead",
+        "translator": "A.C. Bhaktivedanta Swami Prabhupada",
+        "purport": "This is the traditional invocation acknowledging the source of all knowledge and seeking blessings for the work."
+      },
+      "hindi": {
+        "text": "मैं भगवान वासुदेव, परम पुरुष भगवान को अपना सादर प्रणाम करता हूं",
+        "translator": "A.C. Bhaktivedanta Swami Prabhupada"
+      }
+    },
     "concepts": ["devotion", "invocation", "Krishna", "Vasudeva"],
     "keywords": ["obeisances", "supreme", "god", "vasudeva"],
-    "embedding": [0.023, -0.012, 0.045, 0.089, -0.034, 0.067, -0.021, 0.091]
+    "source_url": "https://vedabase.io/en/library/sb/1/1/1/",
+    "last_verified": "2025-01-18",
+    "copyright": "Bhaktivedanta Book Trust International"
   },
   {
-    "text_id": "SB_1.2.6",
+    "text_id": "SB.1.2.6",
     "source": "bhagavatam",
     "canto": 1,
     "chapter": 2,
     "verse_number": 6,
-    "sanskrit_devanagari": "स वै पुंसां परो धर्मो यतो भक्तिरधोक्षजे",
-    "sanskrit_iast": "sa vai puṁsāṁ paro dharmo yato bhaktir adhokṣaje",
-    "english_translation": "The supreme occupation for all humanity is that by which loving devotional service unto the transcendent Lord is attained",
-    "hindi_translation": "समस्त मानवता के लिए सर्वोच्च धर्म वह है जिससे परमात्मा के प्रति प्रेममय भक्ति प्राप्त होती है",
-    "word_meanings": {
-      "sah": "that",
-      "vai": "certainly",
-      "puṁsām": "for mankind",
-      "parah": "supreme",
-      "dharmah": "occupation",
-      "yatah": "by which",
-      "bhaktih": "devotional service",
-      "adhokṣaje": "unto the Transcendence"
+    "sanskrit": {
+      "devanagari": "स वै पुंसां परो धर्मो यतो भक्तिरधोक्षजे",
+      "iast": "sa vai puṁsāṁ paro dharmo yato bhaktir adhokṣaje",
+      "word_breakdown": [
+        {
+          "sanskrit": "सः",
+          "transliteration": "sah",
+          "meaning": "that"
+        },
+        {
+          "sanskrit": "वै",
+          "transliteration": "vai",
+          "meaning": "certainly"
+        },
+        {
+          "sanskrit": "पुंसां",
+          "transliteration": "puṁsām",
+          "meaning": "for mankind"
+        },
+        {
+          "sanskrit": "परः",
+          "transliteration": "parah",
+          "meaning": "supreme"
+        },
+        {
+          "sanskrit": "धर्मः",
+          "transliteration": "dharmah",
+          "meaning": "occupation"
+        },
+        {
+          "sanskrit": "यतः",
+          "transliteration": "yatah",
+          "meaning": "by which"
+        },
+        {
+          "sanskrit": "भक्तिः",
+          "transliteration": "bhaktih",
+          "meaning": "devotional service"
+        },
+        {
+          "sanskrit": "अधोक्षजे",
+          "transliteration": "adhokṣaje",
+          "meaning": "unto the Transcendence"
+        }
+      ]
     },
-    "commentary_english": "This verse establishes bhakti (devotion) as the highest dharma, superior to all other religious practices.",
-    "commentary_hindi": "यह श्लोक भक्ति को सर्वोच्च धर्म के रूप में स्थापित करता है, जो अन्य सभी धार्मिक प्रथाओं से श्रेष्ठ है।",
+    "translations": {
+      "english": {
+        "text": "The supreme occupation for all humanity is that by which loving devotional service unto the transcendent Lord is attained",
+        "translator": "A.C. Bhaktivedanta Swami Prabhupada",
+        "purport": "This verse establishes bhakti (devotion) as the highest dharma, superior to all other religious practices."
+      },
+      "hindi": {
+        "text": "समस्त मानवता के लिए सर्वोच्च धर्म वह है जिससे परमात्मा के प्रति प्रेममय भक्ति प्राप्त होती है",
+        "translator": "A.C. Bhaktivedanta Swami Prabhupada"
+      }
+    },
     "concepts": ["dharma", "bhakti", "supreme duty", "devotional service"],
     "keywords": ["supreme", "dharma", "devotion", "transcendent"],
-    "embedding": [0.034, -0.019, 0.052, 0.078, -0.041, 0.063, -0.028, 0.085]
+    "source_url": "https://vedabase.io/en/library/sb/1/2/6/",
+    "last_verified": "2025-01-18",
+    "copyright": "Bhaktivedanta Book Trust International"
   },
   {
-    "text_id": "VS_1",
+    "text_id": "VS.1",
     "source": "vishnu_sahasranam",
     "verse_number": 1,
-    "sanskrit_devanagari": "विश्वं विष्णुर्वषट्कारो भूतभव्यभवत्प्रभुः",
-    "sanskrit_iast": "viśvaṁ viṣṇur vaṣaṭkāro bhūta-bhavya-bhavat-prabhuḥ",
-    "english_translation": "He is the Universe, He is Vishnu, He is the sacrifice, He is the Lord of past, present and future",
-    "hindi_translation": "वे ब्रह्मांड हैं, वे विष्णु हैं, वे यज्ञ हैं, वे भूत, भविष्य और वर्तमान के स्वामी हैं",
-    "word_meanings": {
-      "viśvam": "the universe",
-      "viṣṇuḥ": "the all-pervading",
-      "vaṣaṭkāraḥ": "the sacrifice",
-      "bhūta": "past",
-      "bhavya": "future",
-      "bhavat": "present",
-      "prabhuḥ": "Lord"
+    "sanskrit": {
+      "devanagari": "विश्वं विष्णुर्वषट्कारो भूतभव्यभवत्प्रभुः",
+      "iast": "viśvaṁ viṣṇur vaṣaṭkāro bhūta-bhavya-bhavat-prabhuḥ",
+      "word_breakdown": [
+        {
+          "sanskrit": "विश्वं",
+          "transliteration": "viśvam",
+          "meaning": "the universe"
+        },
+        {
+          "sanskrit": "विष्णुः",
+          "transliteration": "viṣṇuḥ",
+          "meaning": "the all-pervading"
+        },
+        {
+          "sanskrit": "वषट्कारः",
+          "transliteration": "vaṣaṭkāraḥ",
+          "meaning": "the sacrifice"
+        },
+        {
+          "sanskrit": "भूत",
+          "transliteration": "bhūta",
+          "meaning": "past"
+        },
+        {
+          "sanskrit": "भव्य",
+          "transliteration": "bhavya",
+          "meaning": "future"
+        },
+        {
+          "sanskrit": "भवत्",
+          "transliteration": "bhavat",
+          "meaning": "present"
+        },
+        {
+          "sanskrit": "प्रभुः",
+          "transliteration": "prabhuḥ",
+          "meaning": "Lord"
+        }
+      ]
     },
-    "commentary_english": "This name indicates that Vishnu pervades everything and is the master of all time - past, present, and future.",
-    "commentary_hindi": "यह नाम इंगित करता है कि विष्णु सब कुछ व्याप्त करते हैं और सभी समय - भूत, वर्तमान और भविष्य के स्वामी हैं।",
+    "translations": {
+      "english": {
+        "text": "He is the Universe, He is Vishnu, He is the sacrifice, He is the Lord of past, present and future",
+        "translator": "Traditional",
+        "purport": "This name indicates that Vishnu pervades everything and is the master of all time - past, present, and future."
+      },
+      "hindi": {
+        "text": "वे ब्रह्मांड हैं, वे विष्णु हैं, वे यज्ञ हैं, वे भूत, भविष्य और वर्तमान के स्वामी हैं",
+        "translator": "Traditional"
+      }
+    },
     "concepts": ["omnipresence", "time", "Lord Vishnu", "sacrifice"],
     "keywords": ["universe", "vishnu", "time", "lord"],
-    "embedding": [0.041, -0.025, 0.048, 0.071, -0.038, 0.069, -0.024, 0.088]
+    "source_url": "https://sanskritdocuments.org/",
+    "last_verified": "2025-01-18"
   },
   {
-    "text_id": "LS_1",
+    "text_id": "LS.1",
     "source": "lalita_sahasranam",
     "verse_number": 1,
-    "sanskrit_devanagari": "श्रीमाता श्रीमहाराज्ञी श्रीमत्सिंहासनेश्वरी",
-    "sanskrit_iast": "śrīmātā śrī-mahārājñī śrīmat-siṁhāsaneśvarī",
-    "english_translation": "She is the auspicious Mother, the Great Empress, the Sovereign of the magnificent throne",
-    "hindi_translation": "वे शुभ माता हैं, महान साम्राज्ञी हैं, भव्य सिंहासन की स्वामिनी हैं",
-    "word_meanings": {
-      "śrīmātā": "auspicious mother",
-      "śrī-mahārājñī": "great empress",
-      "śrīmat": "magnificent",
-      "siṁhāsana": "throne",
-      "īśvarī": "sovereign"
+    "sanskrit": {
+      "devanagari": "श्रीमाता श्रीमहाराज्ञी श्रीमत्सिंहासनेश्वरी",
+      "iast": "śrīmātā śrī-mahārājñī śrīmat-siṁhāsaneśvarī",
+      "word_breakdown": [
+        {
+          "sanskrit": "श्रीमाता",
+          "transliteration": "śrīmātā",
+          "meaning": "auspicious mother"
+        },
+        {
+          "sanskrit": "श्रीमहाराज्ञी",
+          "transliteration": "śrī-mahārājñī",
+          "meaning": "great empress"
+        },
+        {
+          "sanskrit": "श्रीमत्",
+          "transliteration": "śrīmat",
+          "meaning": "magnificent"
+        },
+        {
+          "sanskrit": "सिंहासन",
+          "transliteration": "siṁhāsana",
+          "meaning": "throne"
+        },
+        {
+          "sanskrit": "ईश्वरी",
+          "transliteration": "īśvarī",
+          "meaning": "sovereign"
+        }
+      ]
     },
-    "commentary_english": "These names establish the Goddess as the supreme mother and ruler of the universe, seated on her divine throne.",
-    "commentary_hindi": "ये नाम देवी को ब्रह्मांड की सर्वोच्च माता और शासक के रूप में स्थापित करते हैं, जो अपने दिव्य सिंहासन पर विराजमान हैं।",
+    "translations": {
+      "english": {
+        "text": "She is the auspicious Mother, the Great Empress, the Sovereign of the magnificent throne",
+        "translator": "Traditional",
+        "purport": "These names establish the Goddess as the supreme mother and ruler of the universe, seated on her divine throne."
+      },
+      "hindi": {
+        "text": "वे शुभ माता हैं, महान साम्राज्ञी हैं, भव्य सिंहासन की स्वामिनी हैं",
+        "translator": "Traditional"
+      }
+    },
     "concepts": ["Divine Mother", "sovereignty", "Shakti", "feminine divine"],
     "keywords": ["mother", "empress", "throne", "sovereign"],
-    "embedding": [0.037, -0.021, 0.055, 0.074, -0.036, 0.065, -0.027, 0.082]
+    "source_url": "https://sanskritdocuments.org/",
+    "last_verified": "2025-01-18"
   },
   {
-    "text_id": "SB_10.14.8",
+    "text_id": "SB.10.14.8",
     "source": "bhagavatam",
     "canto": 10,
     "chapter": 14,
     "verse_number": 8,
-    "sanskrit_devanagari": "तत्ते अनुकम्पां सुसमीक्षमाणो भुञ्जान एवात्मकृतं विपाकम्",
-    "sanskrit_iast": "tat te 'nukampāṁ su-samīkṣamāṇo bhuñjāna evātma-kṛtaṁ vipākam",
-    "english_translation": "One who earnestly awaits Your mercy should endure the reactions of past misdeeds, considering them opportunities to develop humility",
-    "hindi_translation": "जो व्यक्ति आपकी कृपा की प्रतीक्षा करता है, उसे विनम्रता विकसित करने के अवसर मानते हुए पिछले कुकर्मों की प्रतिक्रियाओं को सहन करना चाहिए",
-    "word_meanings": {
-      "tat": "therefore",
-      "te": "Your",
-      "anukampām": "mercy",
-      "su-samīkṣamāṇaḥ": "earnestly awaiting",
-      "bhuñjānaḥ": "enduring",
-      "eva": "certainly",
-      "ātma-kṛtam": "done by oneself",
-      "vipākam": "resultant reactions"
+    "sanskrit": {
+      "devanagari": "तत्ते अनुकम्पां सुसमीक्षमाणो भुञ्जान एवात्मकृतं विपाकम्",
+      "iast": "tat te 'nukampāṁ su-samīkṣamāṇo bhuñjāna evātma-kṛtaṁ vipākam",
+      "word_breakdown": [
+        {
+          "sanskrit": "तत्",
+          "transliteration": "tat",
+          "meaning": "therefore"
+        },
+        {
+          "sanskrit": "ते",
+          "transliteration": "te",
+          "meaning": "Your"
+        },
+        {
+          "sanskrit": "अनुकम्पां",
+          "transliteration": "anukampām",
+          "meaning": "mercy"
+        },
+        {
+          "sanskrit": "सुसमीक्षमाणः",
+          "transliteration": "su-samīkṣamāṇaḥ",
+          "meaning": "earnestly awaiting"
+        },
+        {
+          "sanskrit": "भुञ्जानः",
+          "transliteration": "bhuñjānaḥ",
+          "meaning": "enduring"
+        },
+        {
+          "sanskrit": "एव",
+          "transliteration": "eva",
+          "meaning": "certainly"
+        },
+        {
+          "sanskrit": "आत्मकृतं",
+          "transliteration": "ātma-kṛtam",
+          "meaning": "done by oneself"
+        },
+        {
+          "sanskrit": "विपाकं",
+          "transliteration": "vipākam",
+          "meaning": "resultant reactions"
+        }
+      ]
     },
-    "commentary_english": "This verse teaches acceptance of karma and patient waiting for divine grace, emphasizing humility in spiritual practice.",
-    "commentary_hindi": "यह श्लोक कर्म की स्वीकृति और दिव्य कृपा की धैर्यपूर्ण प्रतीक्षा सिखाता है, आध्यात्मिक अभ्यास में विनम्रता पर जोर देता है।",
+    "translations": {
+      "english": {
+        "text": "One who earnestly awaits Your mercy should endure the reactions of past misdeeds, considering them opportunities to develop humility",
+        "translator": "A.C. Bhaktivedanta Swami Prabhupada",
+        "purport": "This verse teaches acceptance of karma and patient waiting for divine grace, emphasizing humility in spiritual practice."
+      },
+      "hindi": {
+        "text": "जो व्यक्ति आपकी कृपा की प्रतीक्षा करता है, उसे विनम्रता विकसित करने के अवसर मानते हुए पिछले कुकर्मों की प्रतिक्रियाओं को सहन करना चाहिए",
+        "translator": "A.C. Bhaktivedanta Swami Prabhupada"
+      }
+    },
     "concepts": ["karma", "mercy", "patience", "humility", "grace"],
     "keywords": ["mercy", "karma", "patience", "awaiting"],
-    "embedding": [0.029, -0.018, 0.051, 0.083, -0.039, 0.061, -0.025, 0.087]
+    "source_url": "https://vedabase.io/en/library/sb/10/14/8/",
+    "last_verified": "2025-01-18",
+    "copyright": "Bhaktivedanta Book Trust International"
   }
 ]

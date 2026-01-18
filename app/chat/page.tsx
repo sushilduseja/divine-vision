@@ -6,15 +6,18 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ChatMessage } from '@/components/ChatMessage';
-import { Loader2, Send, MessageSquare } from 'lucide-react';
-import { ChatMessage as ChatMessageType } from '@/types';
+import { Loader2, Send, MessageSquare, AlertTriangle } from 'lucide-react';
+import { ChatMessage as ChatMessageType, ChatMode, Language } from '@/types';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [input, setInput] = useState('');
-  const [language, setLanguage] = useState<'english' | 'hindi'>('english');
+  const [language, setLanguage] = useState<Language>('english');
+  const [mode, setMode] = useState<ChatMode>('conversational');
   const [loading, setLoading] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -43,7 +46,8 @@ export default function ChatPage() {
         body: JSON.stringify({
           message: input,
           language,
-          history: messages.slice(-4)
+          mode,
+          history: messages.slice(-6)
         })
       });
       
@@ -60,8 +64,13 @@ export default function ChatPage() {
           role: 'assistant',
           content: data.response,
           sources: data.sources,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          metadata: data.metadata
         }]);
+        
+        if (data.metadata?.has_disclaimer) {
+          setShowDisclaimer(true);
+        }
       }
     } catch (error) {
       setMessages(prev => [...prev, {
@@ -88,16 +97,47 @@ export default function ChatPage() {
             <MessageSquare className="w-5 h-5 text-primary" />
             <h2 className="text-lg md:text-xl font-semibold text-primary">Ask Questions</h2>
           </div>
-          <Select value={language} onValueChange={(v: any) => setLanguage(v)}>
-            <SelectTrigger className="w-full sm:w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="english">English</SelectItem>
-              <SelectItem value="hindi">हिन्दी</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <Select value={mode} onValueChange={(v: ChatMode) => setMode(v)}>
+              <SelectTrigger className="w-full sm:w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="conversational">Conversational</SelectItem>
+                <SelectItem value="scholarly">Scholarly</SelectItem>
+                <SelectItem value="beginner">Beginner</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={language} onValueChange={(v: Language) => setLanguage(v)}>
+              <SelectTrigger className="w-full sm:w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="english">English</SelectItem>
+                <SelectItem value="hindi">हिन्दी</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
+        
+        {showDisclaimer && (
+          <Alert className="m-3 md:m-4 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20">
+            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <AlertDescription className="text-xs md:text-sm">
+              <strong>Important:</strong> AI responses are interpretations based on textual analysis. 
+              They are not substitutes for guidance from living gurus or traditional commentaries. 
+              For practices, rituals, or spiritual questions, seek qualified teachers.
+              <Button
+                variant="ghost"
+                size="sm"
+                className="ml-2 h-auto p-0 text-xs underline"
+                onClick={() => setShowDisclaimer(false)}
+              >
+                Dismiss
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
         
         <ScrollArea className="flex-1 p-3 md:p-4" ref={scrollRef}>
           {messages.length === 0 && (

@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildContext } from '@/lib/rag/contextBuilder';
-import { generateResponse } from '@/lib/ai';
+import { generateResponse } from '@/lib/ai/models';
+import { ChatMode, Language } from '@/types';
+import { SAFETY_PROMPTS, detectSensitiveQuery, detectControversialTopic } from '@/lib/ai/prompts';
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, language = 'english', history = [] } = await req.json();
+    const { 
+      message, 
+      language = 'english', 
+      history = [],
+      mode = 'conversational'
+    } = await req.json();
     
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -13,28 +20,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { context, sources } = await buildContext(message, language);
+    const { context, sources } = await buildContext(message, language as Language, {
+      template: 'verse_analysis',
+      includeWordMeanings: true,
+      maxTokens: 6000,
+      useReranking: true
+    });
     
     const conversationHistory = history
-      .slice(-4)
-      .map((msg: any) => `${msg.role}: ${msg.content}`)
+      .slice(-6)
+      .map((msg: any) => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
       .join('\n');
     
-    const systemPrompt = language === 'hindi'
-      ? `आप एक विद्वान संस्कृत शास्त्र विशेषज्ञ हैं। दिए गए श्लोकों के आधार पर गहन, विस्तृत उत्तर दें।
-
-नियम:
-- केवल दिए गए संदर्भ का उपयोग करें
-- उद्धरण स्पष्ट रूप से दें [संदर्भ संख्या]
-- जटिल अवधारणाओं को सरल करें`
-      : `You are a knowledgeable guide to Sanskrit scriptures. Provide thoughtful answers based on the given verses.
-
-Guidelines:
-- Use ONLY the provided context
-- Cite sources clearly using [reference number]
-- Explain concepts simply and clearly
-- Connect related ideas across verses`;
-
+    // Determine if disclaimers are needed
+    const needsDisclaimer = detectSensitiveQuery(message);
+    const needsControversy = detectControversialTopic(message);
+    
+    // Build system prompt with safety considerations
+    let additionalSystemPrompt = '';
+    if (needsControversy) {
+      additionalSystemPrompt += SAFETY_PROMPTS.controversial + '\n\n';
+    }
+    
     const prompt = `${conversationHistory ? 'Previous conversation:\n' + conversationHistory + '\n\n' : ''}
 
 Scripture Context:
@@ -44,24 +51,66 @@ Question: ${message}
 
 Provide a thoughtful answer that:
 1. Directly addresses the question
-2. Cites specific verses [1], [2], etc.
-3. Explains the deeper meaning clearly`;
+2. Cites specific verses using [1], [2], etc.
+3. Explains the deeper meaning clearly
+4. Connects related ideas across verses if applicable`;
 
-    const response = await generateResponse(prompt, systemPrompt);
+    const response = await generateResponse(prompt, additionalSystemPrompt, {
+      mode: mode as ChatMode,
+      temperature: 0.4,
+      maxOutputTokens: 2048
+    });
+    
+    // Add disclaimer if needed
+    let finalResponse = response;
+    if (needsDisclaimer) {
+      finalResponse = `${response}\n\n---\n\n${SAFETY_PROMPTS.disclaimer}`;
+    }
+    
+    const translation = language === 'hindi' ? 'hindi' : 'english';
     
     return NextResponse.json({
-      response,
+      response: finalResponse,
       sources: sources.map(s => ({
         text_id: s.text_id,
-        translation: language === 'hindi' ? s.hindi_translation : s.english_translation,
-        similarity: s.similarity
-      }))
+        translation: s.translations[translation]?.text || s.translations.english.text,
+        relevance: s.relevance_score
+      })),
+      metadata: {
+        verses_used: sources.length,
+        mode,
+        has_disclaimer: needsDisclaimer
+      }
     });
     
   } catch (error: any) {
     console.error('Chat error:', error);
+    const errorMsg = error?.message || String(error);
+    
+    // Handle specific error types with appropriate status codes
+    if (errorMsg.includes('quota') || errorMsg.includes('rate limit')) {
+      return NextResponse.json(
+        { error: 'API rate limit reached. Please try again in a minute.' },
+        { status: 429 }
+      );
+    }
+    
+    if (errorMsg.includes('not configured') || errorMsg.includes('API key')) {
+      return NextResponse.json(
+        { error: 'AI service configuration error. Please contact support.' },
+        { status: 503 }
+      );
+    }
+    
+    if (errorMsg.includes('No working Gemini models')) {
+      return NextResponse.json(
+        { error: 'AI service temporarily unavailable. Please try again later.' },
+        { status: 503 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: error.message || 'Failed to get response' },
+      { error: errorMsg || 'Failed to get response. Please try again.' },
       { status: 500 }
     );
   }

@@ -63,6 +63,11 @@ export default {
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
+          50: '#faf5ff',
+          100: '#f3e8ff',
+          500: '#a855f7',
+          600: '#9333ea',
+          900: '#581c87',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
@@ -80,9 +85,29 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
+        sacred: {
+          saffron: '#FF9933',
+          lotus: '#E91E63',
+          peacock: '#4DD0E1',
+          sandalwood: '#FFEAA7',
+        },
+        semantic: {
+          bhagavatam: '#9333ea',
+          vishnu: '#3b82f6',
+          lalita: '#ec4899',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
+      },
+      spacing: {
+        section: '5rem',
+        card: '1.5rem',
+      },
+      boxShadow: {
+        card: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+        'card-hover': '0 4px 12px rgba(147, 51, 234, 0.15)',
+        modal: '0 20px 40px rgba(0,0,0,0.3)',
       },
       borderRadius: {
         lg: 'var(--radius)',
