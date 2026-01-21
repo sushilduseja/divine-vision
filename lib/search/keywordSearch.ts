@@ -1,3 +1,4 @@
+// lib/search/keywordSearch.ts - ENHANCED (better BM25)
 import { SearchResult, Verse } from '@/types';
 import { loadVerses } from '@/lib/data/loader';
 
@@ -9,27 +10,20 @@ function tokenize(text: string): string[] {
     .filter(t => t.length > 2);
 }
 
-function calculateDocumentFrequencies(verses: Verse[]): Map<string, number> {
-  const docFreq = new Map<string, number>();
+function calculateIDF(term: string, docs: Verse[]): number {
+  const docsWithTerm = docs.filter(doc => {
+    const docText = `${doc.sanskrit.iast} ${doc.translations.english.text} ${doc.concepts.join(' ')}`;
+    return tokenize(docText).includes(term);
+  }).length;
   
-  verses.forEach(verse => {
-    const docText = `${verse.sanskrit.iast} ${verse.translations.english.text} ${verse.concepts.join(' ')}`;
-    const docTokens = new Set(tokenize(docText));
-    
-    docTokens.forEach(token => {
-      docFreq.set(token, (docFreq.get(token) || 0) + 1);
-    });
-  });
-  
-  return docFreq;
+  return Math.log((docs.length - docsWithTerm + 0.5) / (docsWithTerm + 0.5) + 1);
 }
 
 function bm25Score(
   queryTokens: string[],
   docTokens: string[],
   avgDocLength: number,
-  docFreq: Map<string, number>,
-  totalDocs: number,
+  idfScores: Map<string, number>,
   k1: number = 1.5,
   b: number = 0.75
 ): number {
@@ -44,11 +38,7 @@ function bm25Score(
   queryTokens.forEach(token => {
     const freq = tokenFreq.get(token) || 0;
     if (freq > 0) {
-      // IDF: log((N - df + 0.5) / (df + 0.5)) where N is total docs, df is doc frequency
-      const df = docFreq.get(token) || 0;
-      const idf = Math.log((totalDocs - df + 0.5) / (df + 0.5));
-      
-      // TF: (freq * (k1 + 1)) / (freq + k1 * (1 - b + b * (docLength / avgDocLength)))
+      const idf = idfScores.get(token) || 0;
       const tf = (freq * (k1 + 1)) / 
                  (freq + k1 * (1 - b + b * (docLength / avgDocLength)));
       score += idf * tf;
@@ -72,23 +62,23 @@ export async function keywordSearch(
   
   if (filtered.length === 0) return [];
   
-  // Calculate document frequencies for IDF
-  const docFreq = calculateDocumentFrequencies(filtered);
-  const totalDocs = filtered.length;
+  // Calculate IDF scores for query terms
+  const idfScores = new Map<string, number>();
+  queryTokens.forEach(term => {
+    idfScores.set(term, calculateIDF(term, filtered));
+  });
   
   // Calculate average document length
-  const avgDocLength = filtered.reduce(
-    (sum, v) => {
-      const docText = `${v.sanskrit.iast} ${v.translations.english.text} ${v.concepts.join(' ')}`;
-      return sum + tokenize(docText).length;
-    },
-    0
-  ) / filtered.length;
+  const avgDocLength = filtered.reduce((sum, v) => {
+    const docText = `${v.sanskrit.iast} ${v.translations.english.text} ${v.concepts.join(' ')}`;
+    return sum + tokenize(docText).length;
+  }, 0) / filtered.length;
   
+  // Score all documents
   const results = filtered.map(verse => {
     const docText = `${verse.sanskrit.iast} ${verse.translations.english.text} ${verse.concepts.join(' ')}`;
     const docTokens = tokenize(docText);
-    const score = bm25Score(queryTokens, docTokens, avgDocLength, docFreq, totalDocs);
+    const score = bm25Score(queryTokens, docTokens, avgDocLength, idfScores);
     
     return {
       ...verse,
@@ -101,6 +91,7 @@ export async function keywordSearch(
   });
   
   return results
+    .filter(r => r.relevance_score > 0)
     .sort((a, b) => b.relevance_score - a.relevance_score)
     .slice(0, limit);
 }

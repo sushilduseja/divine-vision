@@ -1,8 +1,9 @@
+// app/api/chat/route.ts - FIXED (better error messages)
 import { NextRequest, NextResponse } from 'next/server';
 import { buildContext } from '@/lib/rag/contextBuilder';
-import { generateResponse } from '@/lib/ai/models';
+import { generateResponse } from '@/lib/ai/providers';
 import { ChatMode, Language } from '@/types';
-import { SAFETY_PROMPTS, detectSensitiveQuery, detectControversialTopic } from '@/lib/ai/prompts';
+import { SAFETY_PROMPTS, detectSensitiveQuery, detectControversialTopic, SYSTEM_PROMPTS } from '@/lib/ai/prompts';
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,94 +24,78 @@ export async function POST(req: NextRequest) {
     const { context, sources } = await buildContext(message, language as Language, {
       template: 'verse_analysis',
       includeWordMeanings: true,
-      maxTokens: 6000,
-      useReranking: true
+      maxTokens: 6000
     });
     
+    if (sources.length === 0) {
+      return NextResponse.json({
+        response: "I couldn't find relevant verses for your question. Please try rephrasing or asking about concepts from the Bhāgavatam, Viṣṇu Sahasranāma, or Lalitā Sahasranāma.",
+        sources: [],
+        metadata: { verses_used: 0, mode, has_disclaimer: false }
+      });
+    }
+    
     const conversationHistory = history
-      .slice(-6)
-      .map((msg: any) => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
+      .slice(-3)
+      .map((msg: any) => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content.slice(0, 200)}`)
       .join('\n');
     
-    // Determine if disclaimers are needed
     const needsDisclaimer = detectSensitiveQuery(message);
     const needsControversy = detectControversialTopic(message);
     
-    // Build system prompt with safety considerations
-    let additionalSystemPrompt = '';
+    const basePrompt = SYSTEM_PROMPTS.base;
+    const modePrompt = SYSTEM_PROMPTS[mode as ChatMode];
+    let systemPrompt = `${basePrompt}\n\n${modePrompt}`;
+    
     if (needsControversy) {
-      additionalSystemPrompt += SAFETY_PROMPTS.controversial + '\n\n';
+      systemPrompt += `\n\n${SAFETY_PROMPTS.controversial}`;
     }
     
-    const prompt = `${conversationHistory ? 'Previous conversation:\n' + conversationHistory + '\n\n' : ''}
+    const prompt = `${conversationHistory ? 'Recent conversation:\n' + conversationHistory + '\n\n' : ''}
 
 Scripture Context:
 ${context}
 
-Question: ${message}
+User Question: ${message}
 
-Provide a thoughtful answer that:
+Provide a clear, accurate answer that:
 1. Directly addresses the question
-2. Cites specific verses using [1], [2], etc.
-3. Explains the deeper meaning clearly
-4. Connects related ideas across verses if applicable`;
+2. Cites specific verses using [1], [2] format
+3. Explains the philosophical meaning
+4. Stays grounded in the provided verses
 
-    const response = await generateResponse(prompt, additionalSystemPrompt, {
-      mode: mode as ChatMode,
-      temperature: 0.4,
-      maxOutputTokens: 2048
-    });
+Answer:`;
+
+    // Try to generate response (with fallback)
+    const response = await generateResponse(prompt, systemPrompt);
     
-    // Add disclaimer if needed
     let finalResponse = response;
-    if (needsDisclaimer) {
+    if (needsDisclaimer && !response.includes('temporarily unavailable')) {
       finalResponse = `${response}\n\n---\n\n${SAFETY_PROMPTS.disclaimer}`;
     }
     
-    const translation = language === 'hindi' ? 'hindi' : 'english';
+    const translationLang = language === 'hindi' ? 'hindi' : 'english';
     
     return NextResponse.json({
       response: finalResponse,
       sources: sources.map(s => ({
         text_id: s.text_id,
-        translation: s.translations[translation]?.text || s.translations.english.text,
+        translation: (s.translations[translationLang] || s.translations.english).text,
         relevance: s.relevance_score
       })),
       metadata: {
         verses_used: sources.length,
         mode,
-        has_disclaimer: needsDisclaimer
+        has_disclaimer: needsDisclaimer,
+        fallback_used: response.includes('temporarily unavailable')
       }
     });
     
   } catch (error: any) {
     console.error('Chat error:', error);
-    const errorMsg = error?.message || String(error);
-    
-    // Handle specific error types with appropriate status codes
-    if (errorMsg.includes('quota') || errorMsg.includes('rate limit')) {
-      return NextResponse.json(
-        { error: 'API rate limit reached. Please try again in a minute.' },
-        { status: 429 }
-      );
-    }
-    
-    if (errorMsg.includes('not configured') || errorMsg.includes('API key')) {
-      return NextResponse.json(
-        { error: 'AI service configuration error. Please contact support.' },
-        { status: 503 }
-      );
-    }
-    
-    if (errorMsg.includes('No working Gemini models')) {
-      return NextResponse.json(
-        { error: 'AI service temporarily unavailable. Please try again later.' },
-        { status: 503 }
-      );
-    }
     
     return NextResponse.json(
-      { error: errorMsg || 'Failed to get response. Please try again.' },
+      { error: 'An unexpected error occurred. Please try again.' },
       { status: 500 }
     );
   }

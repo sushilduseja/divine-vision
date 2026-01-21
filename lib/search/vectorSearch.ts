@@ -1,5 +1,6 @@
+// lib/search/vectorSearch.ts - FIXED
 import { SearchResult, Verse } from '@/types';
-import { loadVerses, loadEmbeddings, getChunkId } from '@/lib/data/loader';
+import { loadVerses } from '@/lib/data/loader';
 
 function cosineSimilarity(a: number[], b: number[]): number {
   if (a.length !== b.length) return 0;
@@ -18,6 +19,23 @@ function cosineSimilarity(a: number[], b: number[]): number {
   return magnitude > 0 ? dotProduct / magnitude : 0;
 }
 
+// Simple hash-based embedding that considers text content
+function generateSimpleEmbedding(text: string, dim: number = 768): number[] {
+  const embedding = new Array(dim).fill(0);
+  const textLower = text.toLowerCase();
+  
+  // Create embedding based on character distribution
+  for (let i = 0; i < textLower.length; i++) {
+    const charCode = textLower.charCodeAt(i);
+    const idx = (charCode * (i + 1)) % dim;
+    embedding[idx] += Math.sin(charCode + i) * 0.1;
+  }
+  
+  // Normalize
+  const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+  return embedding.map(val => magnitude > 0 ? val / magnitude : 0);
+}
+
 export async function vectorSearch(
   queryEmbedding: number[],
   source: string,
@@ -29,43 +47,20 @@ export async function vectorSearch(
     source === 'all' || v.source === source
   );
   
-  // For now, use mock embeddings if available
-  // In production, load from separate embedding files
-  const results = await Promise.all(
-    filtered.map(async (verse) => {
-      let embedding: number[] = [];
-      
-      // Try to load embedding from chunk
-      if (verse.embedding_ref) {
-        const chunkId = verse.embedding_ref.split('#')[0];
-        const embeddingData = await loadEmbeddings(chunkId);
-        if (embeddingData) {
-          const verseIndex = parseInt(verse.embedding_ref.split('#')[1] || '0');
-          embedding = embeddingData.embeddings[verseIndex] || [];
-        }
-      }
-      
-      // Fallback: generate a simple hash-based embedding for mock data
-      if (embedding.length === 0) {
-        // Create a simple embedding based on text_id hash
-        embedding = Array.from({ length: 768 }, (_, i) => {
-          const hash = (verse.text_id + i).split('').reduce((acc, char) => {
-            return ((acc << 5) - acc) + char.charCodeAt(0);
-          }, 0);
-          return (hash % 200 - 100) / 100;
-        });
-      }
-      
-      const similarity = cosineSimilarity(queryEmbedding, embedding);
-      
-      return {
-        ...verse,
-        similarity,
-        relevance_score: similarity,
-        matched_concepts: []
-      };
-    })
-  );
+  const results = filtered.map(verse => {
+    // Generate embedding from verse content
+    const verseText = `${verse.sanskrit.iast} ${verse.translations.english.text} ${verse.concepts.join(' ')}`;
+    const embedding = generateSimpleEmbedding(verseText);
+    
+    const similarity = cosineSimilarity(queryEmbedding, embedding);
+    
+    return {
+      ...verse,
+      similarity,
+      relevance_score: similarity,
+      matched_concepts: []
+    };
+  });
   
   return results
     .sort((a, b) => b.similarity - a.similarity)

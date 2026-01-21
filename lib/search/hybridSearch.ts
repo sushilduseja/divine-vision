@@ -1,8 +1,7 @@
+// lib/search/hybridSearch.ts - FIXED (no embedding API calls)
 import { SearchResult, SearchConfig, SourceType } from '@/types';
-import { vectorSearch } from './vectorSearch';
 import { keywordSearch } from './keywordSearch';
 import { conceptSearch } from './conceptSearch';
-import { generateEmbedding } from '@/lib/ai';
 
 export async function hybridSearch(
   queryOrConfig: string | SearchConfig,
@@ -17,7 +16,7 @@ export async function hybridSearch(
       query: queryOrConfig,
       source: (source || 'all') as 'all' | SourceType,
       limit: limit || 20,
-      weights: weights || { semantic: 0.6, keyword: 0.3, concept: 0.1 }
+      weights: weights || { semantic: 0, keyword: 0.7, concept: 0.3 }
     };
   } else {
     config = queryOrConfig;
@@ -25,30 +24,24 @@ export async function hybridSearch(
   
   const { query, source: sourceFilter, limit: resultLimit, weights: searchWeights } = config;
   
-  // Generate query embedding
-  const queryEmbedding = await generateEmbedding(query);
-  
-  // Parallel search: semantic, keyword, and concept
-  const [vectorResults, keywordResults, conceptResults] = await Promise.all([
-    vectorSearch(queryEmbedding, sourceFilter, resultLimit * 2),
+  // Only use keyword and concept search (no API calls)
+  const [keywordResults, conceptResults] = await Promise.all([
     keywordSearch(query, sourceFilter, resultLimit * 2),
     conceptSearch(query, sourceFilter, resultLimit * 2)
   ]);
   
-  // Combine with weighted RRF (Reciprocal Rank Fusion)
+  // Combine with weighted RRF
   const combined = reciprocalRankFusion(
-    vectorResults,
     keywordResults,
     conceptResults,
     searchWeights,
-    60 // k parameter
+    60
   );
   
   return combined.slice(0, resultLimit);
 }
 
 function reciprocalRankFusion(
-  vectorResults: SearchResult[],
   keywordResults: SearchResult[],
   conceptResults: SearchResult[],
   weights: { semantic: number; keyword: number; concept: number },
@@ -56,33 +49,20 @@ function reciprocalRankFusion(
 ): SearchResult[] {
   const scoreMap = new Map<string, { verse: SearchResult; score: number; types: Set<string> }>();
   
-  // Score vector results
-  vectorResults.forEach((verse, rank) => {
-    const score = (1 / (k + rank + 1)) * weights.semantic;
-    const existing = scoreMap.get(verse.text_id);
-    
-    if (existing) {
-      existing.score += score;
-      existing.types.add('semantic');
-    } else {
-      scoreMap.set(verse.text_id, {
-        verse,
-        score,
-        types: new Set(['semantic'])
-      });
-    }
-  });
-  
-  // Add keyword results
+  // Score keyword results
   keywordResults.forEach((verse, rank) => {
-    const score = (1 / (k + rank + 1)) * weights.keyword;
+    const score = (1 / (k + rank + 1)) * (weights.keyword + weights.semantic); // Combine semantic weight into keyword
     const existing = scoreMap.get(verse.text_id);
     
     if (existing) {
       existing.score += score;
       existing.types.add('keyword');
     } else {
-      scoreMap.set(verse.text_id, { verse, score, types: new Set(['keyword']) });
+      scoreMap.set(verse.text_id, {
+        verse,
+        score,
+        types: new Set(['keyword'])
+      });
     }
   });
   
@@ -99,20 +79,11 @@ function reciprocalRankFusion(
     }
   });
   
-  // Determine dominant match type
-  const determineMatchType = (types: Set<string>): 'semantic' | 'keyword' | 'concept' => {
-    if (types.has('semantic') && types.size === 1) return 'semantic';
-    if (types.has('keyword') && types.size === 1) return 'keyword';
-    if (types.has('concept') && types.size === 1) return 'concept';
-    return 'semantic'; // Default
-  };
-  
-  // Sort by combined score
   return Array.from(scoreMap.values())
     .sort((a, b) => b.score - a.score)
     .map(item => ({
       ...item.verse,
       relevance_score: item.score,
-      match_type: determineMatchType(item.types)
+      match_type: item.types.has('keyword') ? 'keyword' as const : 'concept' as const
     }));
 }

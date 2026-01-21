@@ -2,6 +2,5 @@
 export {
   generateResponse,
   generateEmbedding,
-  resetModelCache,
   type GenerateResponseOptions
 } from './ai/models';
