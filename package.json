@@ -20,7 +20,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "groq-sdk": "^0.37.0",
-    "lucide-react": "^0.408.0",
+    "lucide-react": "^1.28.0",
     "marked": "^14.1.2",
     "next": ">=16.2.6",
     "next-themes": "^0.3.0",
