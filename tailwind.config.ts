@@ -1,39 +1,9 @@
 import type { Config } from 'tailwindcss';
 
 export default {
-  darkMode: ['class'],
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
-  safelist: [
-    'bg-primary',
-    'text-primary',
-    'hover:bg-primary/90',
-    'text-xl',
-    'flex',
-    'bg-red-500',
-    'text-4xl',
-    'font-bold',
-    'text-blue-600',
-    'text-5xl',
-    'mb-4',
-    'mb-12',
-    'space-y-8',
-    'grid',
-    'gap-6',
-    'md:grid-cols-3',
-    'flex',
-    'items-center',
-    'mr-2',
-    'h-5',
-    'w-5',
-    'list-disc',
-    'pl-5',
-    'space-y-2',
-    'mt-12',
-    'text-center',
-    'text-muted-foreground',
   ],
   theme: {
     container: {
