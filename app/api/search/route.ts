@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { hybridSearch } from '@/lib/search/hybridSearch';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const { query, source = 'all', limit = 20, weights } = await req.json();

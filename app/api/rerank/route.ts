@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SearchResult } from '@/types';
 import { generateResponse } from '@/lib/ai/models';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const { query, results } = await req.json();

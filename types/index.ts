@@ -60,6 +60,7 @@ export interface ChatMessage {
     verses_used?: number;
     mode?: ChatMode;
     has_disclaimer?: boolean;
+    fallback_used?: boolean;
   };
 }
 
