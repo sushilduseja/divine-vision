@@ -2,20 +2,30 @@
 import Groq from "groq-sdk";
 import OpenAI from "openai";
 
-// GROQ Configuration
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY || '',
-});
+// GROQ Configuration (lazy: constructed on first request, not import)
+let _groq: Groq | null = null;
+function getGroq(): Groq {
+  if (!_groq) {
+    _groq = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
+  }
+  return _groq;
+}
 
-// OpenRouter Configuration (uses OpenAI SDK)
-const openrouter = new OpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY || '',
-  baseURL: 'https://openrouter.ai/api/v1',
-  defaultHeaders: {
-    'HTTP-Referer': process.env.SITE_URL || 'http://localhost:9002',
-    'X-Title': process.env.SITE_NAME || 'Divine Vision',
-  },
-});
+// OpenRouter Configuration, uses OpenAI SDK (lazy for the same reason)
+let _openrouter: OpenAI | null = null;
+function getOpenrouter(): OpenAI {
+  if (!_openrouter) {
+    _openrouter = new OpenAI({
+      apiKey: process.env.OPENROUTER_API_KEY || '',
+      baseURL: 'https://openrouter.ai/api/v1',
+      defaultHeaders: {
+        'HTTP-Referer': process.env.SITE_URL || 'http://localhost:9002',
+        'X-Title': process.env.SITE_NAME || 'Divine Vision',
+      },
+    });
+  }
+  return _openrouter;
+}
 
 // GROQ models (fastest to most capable)
 const GROQ_MODELS = [
@@ -175,7 +185,7 @@ async function tryGroqModels(
       console.log(`[GROQ] Trying ${model}`);
       
       const completion = await Promise.race([
-        groq.chat.completions.create({
+        getGroq().chat.completions.create({
           model,
           messages: [
             { role: 'system', content: systemPrompt },
@@ -249,7 +259,7 @@ async function tryOpenRouterModels(
       console.log(`[OpenRouter] Trying ${model}`);
       
       const completion = await Promise.race([
-        openrouter.chat.completions.create({
+        getOpenrouter().chat.completions.create({
           model,
           messages: [
             { role: 'system', content: systemPrompt },

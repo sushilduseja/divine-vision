@@ -5,6 +5,8 @@ import { generateResponse } from '@/lib/ai/providers';
 import { ChatMode, Language } from '@/types';
 import { SAFETY_PROMPTS, detectSensitiveQuery, detectControversialTopic, SYSTEM_PROMPTS } from '@/lib/ai/prompts';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const { 

@@ -7,15 +7,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { marked } from 'marked';
 import { useMemo } from 'react';
+import type { ChatMessage as ChatMessageType } from '@/types';
 
 interface ChatMessageProps {
   role: 'user' | 'assistant';
   content: string;
   sources?: Array<{ text_id: string; translation: string }>;
   timestamp: number;
-  metadata?: {
-    fallback_used?: boolean;
-  };
+  metadata?: ChatMessageType['metadata'];
 }
 
 export function ChatMessage({ role, content, sources, timestamp, metadata }: ChatMessageProps) {
